@@ -1,21 +1,17 @@
+.DS_Store
+.env
+.env.*
+
+# dependencies
 node_modules/
+
+# next.js
 .next/
 out/
-dist/
-.turbo/
-.vercel/
 
-# Logs
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-
-# OS / Editor
-.DS_Store
-.vscode/
-.idea/
-
-# Env
-.env*
 
