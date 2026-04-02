@@ -12,13 +12,13 @@ export default function CheckoutPage() {
       <h1 className="mt-2 page-title text-center">Checkout</h1>
 
       {!placed ? (
-        <div className="mt-8 card-surface">
-          <div className="text-sm text-neutral-700">
+        <div className="mt-6 card-surface sm:mt-8">
+          <div className="text-sm leading-snug text-neutral-700 sm:leading-normal">
             This is a frontend-only checkout mock. No payment will be processed.
           </div>
 
           <form
-            className="mt-5 grid grid-cols-1 gap-4"
+            className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:gap-4"
             onSubmit={(e) => {
               e.preventDefault();
               setPlaced(true);
@@ -57,9 +57,9 @@ export default function CheckoutPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 card-surface text-center">
+        <div className="mt-6 card-surface text-center sm:mt-8">
           <h2 className="text-lg font-semibold">Order placed (mock)</h2>
-          <p className="mt-2 text-sm text-neutral-700">
+          <p className="mt-1.5 text-sm leading-snug text-neutral-700 sm:mt-2 sm:leading-normal">
             Thanks! In the next phase, we&apos;ll connect checkout to your backend and database.
           </p>
         </div>

@@ -14,6 +14,13 @@ export const metadata = {
   description: "ANTI store",
 };
 
+/** Enables `env(safe-area-inset-*)` for notched devices so the header clears the status bar. */
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

@@ -10,13 +10,13 @@ export default function ContactPage() {
       <div className="page-kicker text-center">Contact</div>
       <h1 className="mt-2 page-title text-center">Contact Us</h1>
 
-      <div className="mt-8 card-surface">
+      <div className="mt-6 card-surface sm:mt-8">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             setStatus("Submitted (mock). We’ll get back to you soon.");
           }}
-          className="grid grid-cols-1 gap-4"
+          className="grid grid-cols-1 gap-3 sm:gap-4"
         >
           <label className="block">
             <div className="text-sm text-neutral-700 mb-1">Name *</div>

@@ -9,7 +9,7 @@ body {
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900;
+  @apply bg-neutral-50 text-neutral-900 leading-snug sm:leading-normal;
 }
 
 a {
@@ -72,16 +72,16 @@ html {
   }
 
   .home-section-y {
-    @apply py-14 md:py-20 lg:py-24;
+    @apply py-10 sm:py-14 md:py-20 lg:py-24;
   }
 
   /* Shared page containers */
   .page-shell {
-    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12;
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12;
   }
 
   .page-narrow {
-    @apply max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-12;
+    @apply max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12;
   }
 
   .page-title {

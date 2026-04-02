@@ -2,6 +2,36 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { socialLinks } from "../data/socialLinks";
+import { InstagramIcon, TikTokIcon } from "./SocialIcons";
+
+const headerSocialIcons = { instagram: InstagramIcon, tiktok: TikTokIcon };
+
+function HeaderSocialRow({ className = "" }) {
+  return (
+    <ul
+      className={["m-0 flex list-none items-center gap-1.5 p-0", className].filter(Boolean).join(" ")}
+      aria-label="Social media"
+    >
+      {socialLinks.map((s) => {
+        const Icon = headerSocialIcons[s.icon];
+        return (
+          <li key={s.href}>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={s.label}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-800 transition-colors hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+            >
+              {Icon ? <Icon className="h-[15px] w-[15px]" /> : null}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export default function Header() {
   const [query, setQuery] = useState("");
@@ -45,15 +75,18 @@ export default function Header() {
   return (
     <header
       className={[
-        "w-full border-b transition-all",
-        scrolled ? "border-neutral-200 bg-white/90 backdrop-blur" : "border-neutral-200/70 bg-white/70 backdrop-blur",
-        "sticky top-0 z-50",
+        "sticky top-0 z-50 w-full border-b border-neutral-200 transition-[background-color,box-shadow]",
+        // Opaque on small screens (translucent + blur can read as invisible on some layouts/OS themes).
+        scrolled
+          ? "bg-white shadow-sm md:bg-white/90 md:shadow-none md:backdrop-blur-md"
+          : "bg-white md:bg-white/75 md:backdrop-blur-md",
+        "pt-[env(safe-area-inset-top,0px)]",
       ].join(" ")}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
         {/* Left: logos */}
         <div className="flex min-w-0 items-center gap-2">
-          <Link href="/" className="flex items-center gap-2" onClick={closeMenu}>
+          <Link href="/" className="flex shrink-0 items-center gap-2" onClick={closeMenu}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-10 w-auto" />
           </Link>
@@ -69,7 +102,7 @@ export default function Header() {
         </nav>
 
         {/* Right: cart + hamburger (mobile) / search + cart (md+) */}
-        <div className="flex items-center justify-end gap-2 md:gap-3">
+        <div className="flex shrink-0 items-center justify-end gap-2 md:gap-3">
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1.5">
             <input
               id="header-search"
@@ -83,7 +116,7 @@ export default function Header() {
           <Link
             href={cartHref}
             aria-label="Cart"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 transition-colors hover:bg-neutral-50 md:order-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-900 transition-colors hover:bg-neutral-50 md:order-none"
             onClick={closeMenu}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -101,7 +134,7 @@ export default function Header() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-900 transition-colors hover:bg-neutral-50 md:hidden"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-900 transition-colors hover:bg-neutral-50 md:hidden"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -174,6 +207,7 @@ export default function Header() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
+              <HeaderSocialRow className="mt-3 justify-center" />
             </div>
           </div>
         </>

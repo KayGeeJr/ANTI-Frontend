@@ -40,7 +40,7 @@ export default function ProductDetails({ product }) {
   const activeSrc = images[Math.min(activeImageIdx, images.length - 1)] || images[0];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
       <div>
         <div
           className="relative aspect-square rounded-2xl border border-neutral-200 bg-neutral-50 overflow-hidden"
@@ -119,7 +119,7 @@ export default function ProductDetails({ product }) {
         <h1 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">{product.title}</h1>
         <div className="mt-2 text-xl font-medium text-neutral-900">{formatPrice(product.price)}</div>
 
-        <p className="mt-4 text-sm text-neutral-700 leading-relaxed">{product.description}</p>
+        <p className="mt-3 text-sm leading-snug text-neutral-700 sm:mt-4 sm:leading-relaxed">{product.description}</p>
 
         <div className="mt-6">
           {options.map((opt) => (

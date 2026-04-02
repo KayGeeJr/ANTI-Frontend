@@ -28,7 +28,7 @@ export default function RandomFeaturedProducts({ products, count = 4 }) {
   const items = useMemo(() => (Array.isArray(featured) ? featured : []), [featured]);
 
   return (
-    <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-2 md:gap-10">
+    <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 md:grid-cols-2 md:gap-10">
       {featured === null
         ? Array.from({ length: safeCount }).map((_, idx) => (
             <div

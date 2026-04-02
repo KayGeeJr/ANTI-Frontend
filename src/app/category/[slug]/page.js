@@ -16,9 +16,9 @@ export default function CategoryPage({ params }) {
         <div className="page-kicker">Category</div>
         <h1 className="mt-2 page-title">{category.title}</h1>
       </RevealOnScroll>
-      <div className="mt-2 text-sm text-neutral-600">{`Showing all ${products.length} results`}</div>
+      <div className="mt-1.5 text-sm leading-snug text-neutral-600 sm:mt-2 sm:leading-normal">{`Showing all ${products.length} results`}</div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-5 lg:grid-cols-3">
         {products.map((p, idx) => (
           <RevealOnScroll key={p.slug} delayMs={idx * 40}>
             <ProductCard product={p} />

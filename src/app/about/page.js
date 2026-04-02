@@ -21,7 +21,7 @@ export default function AboutPage() {
           />
         </div>
       </div>
-      <div className="mx-auto mt-8 max-w-3xl space-y-4 text-sm leading-relaxed text-neutral-700 sm:text-[15px]">
+      <div className="mx-auto mt-6 max-w-3xl space-y-2.5 text-sm leading-snug text-neutral-700 sm:mt-8 sm:space-y-4 sm:leading-relaxed sm:text-[15px]">
         <p>
           Founded in 2021, ANTI specialises in both fashion design and manufacturing. Our work is a seamless fusion of
           skill, vision, and cultural relevance—each piece intentionally created to inspire boldness and reflect the
