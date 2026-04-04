@@ -1,12 +1,31 @@
 const mockCatalog = {
   currency: "ZAR",
   categories: [
-    { slug: "afwl-tess", title: "The Next Chapter Collection", image: "/images/anti_images/anti2.JPG" },
-    { slug: "utility-vests", title: "Utility Vests", image: "/images/anti_images/vests.jpeg" },
-    { slug: "the-working-girl-drop", title: "The Working Girl Drop", image: "/images/products/undul4.jpeg" },
-    { slug: "pyjamas", title: "Pyjamas", image: "/images/anti_images/pjs.jpeg" },
-    { slug: "dresses", title: "Luxury Dresses", image: "/images/anti_images/dresses.JPG" },
-    
+    {
+      slug: "afwl-tess",
+      title: "The Next Chapter Collection",
+      video: "/images/anti_images/tncc.mp4",
+      image: "/images/anti_images/anti2.JPG",
+    },
+    {
+      slug: "utility-vests",
+      title: "Utility Vests",
+      video: "/images/anti_images/vests.mp4",
+      image: "/images/anti_images/vests.jpeg",
+    },
+    {
+      slug: "the-working-girl-drop",
+      title: "The Working Girl Drop",
+      video: "/images/anti_images/twgd.mp4",
+      image: "/images/products/undul4.jpeg",
+    },
+    // { slug: "pyjamas", title: "Pyjamas", image: "/images/anti_images/pjs.jpeg" },
+    {
+      slug: "dresses",
+      title: "Luxury Dresses",
+      video: "/images/anti_images/dresses.mp4",
+      image: "/images/anti_images/dresses.jpg",
+    },
   ],
   galleryImages: [
     "/images/anti_gallery/WhatsApp%20Image%202025-06-11%20at%2017.40.42.jpeg",

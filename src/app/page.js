@@ -67,7 +67,7 @@ export default function HomePage() {
           </RevealOnScroll>
 
           <RevealOnScroll delayMs={80}>
-            <div className="max-w-prose text-[13px] leading-[1.45] text-neutral-600 sm:text-[15px] sm:leading-7 md:text-[16px] md:leading-8">
+            <div className="max-w-prose text-base leading-[1.45] text-neutral-600 sm:text-[16px] sm:leading-7 md:text-[16px] md:leading-8">
                 <p className="md:pt-2">
                   Our first campaign was a beautiful testament to the power of community. Because of your incredible
                   support, we successfully secured a coverted spot at Africa Fashion Week London - a milestone that pushed
