@@ -299,7 +299,7 @@ export default function HomePage() {
               </div>
             </RevealOnScroll>
             <RevealOnScroll delayMs={100}>
-              <div className="max-w-prose space-y-2.5 text-sm leading-snug text-neutral-700 sm:space-y-4 sm:leading-relaxed sm:text-[15px] md:space-y-5 md:text-[16px] md:leading-7">
+              <div className="max-w-prose space-y-2.5 text-base leading-snug text-neutral-700 sm:space-y-4 sm:leading-relaxed sm:text-[16px] md:space-y-5 md:text-[16px] md:leading-7">
                 <p>
                   ANTI is a progressive South African fashion brand redefining luxury through bold style and timeless allure.
                   Rooted in Johannesburg, our aesthetic is eclectic, contemporary, and unapologetically distinctive.

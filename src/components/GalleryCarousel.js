@@ -24,7 +24,11 @@ export default function GalleryCarousel({ images = [] }) {
     const el = scrollerRef.current;
     if (!el) return;
     if (isAnimating) return;
-    const amount = Math.round(el.clientWidth * 0.85) * direction;
+    const first = el.children[0];
+    if (!first) return;
+    const gap = parseFloat(getComputedStyle(el).gap) || 0;
+    const slideStep = first.getBoundingClientRect().width + gap;
+    const amount = slideStep * direction;
 
     const prefersReduced =
       typeof window !== "undefined" &&
@@ -95,7 +99,7 @@ export default function GalleryCarousel({ images = [] }) {
 
         <button
           type="button"
-          className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white/70 backdrop-blur hover:bg-white transition"
+          className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 touch-manipulation items-center justify-center rounded-full border border-neutral-200 bg-white/90 shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 sm:left-0"
           onClick={() => scrollBy(-1)}
           aria-label="Scroll gallery left"
         >
@@ -103,7 +107,7 @@ export default function GalleryCarousel({ images = [] }) {
         </button>
         <button
           type="button"
-          className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-white/70 backdrop-blur hover:bg-white transition"
+          className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 touch-manipulation items-center justify-center rounded-full border border-neutral-200 bg-white/90 shadow-sm backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 sm:right-0"
           onClick={() => scrollBy(1)}
           aria-label="Scroll gallery right"
         >
