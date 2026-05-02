@@ -3,16 +3,30 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import VariantSelector from "./VariantSelector";
+import { api } from "../lib/api";
+import { formatRand } from "../lib/pricing";
 
-function formatPrice(price) {
-  return `R${price}.00`;
+function toLegacyOptions(variants = []) {
+  if (!Array.isArray(variants) || variants.length === 0) return [];
+  const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
+  const colours = [...new Set(variants.map((v) => v.colour).filter(Boolean))];
+  const options = [];
+  if (sizes.length) options.push({ name: "size", values: sizes });
+  if (colours.length) options.push({ name: "colour", values: colours });
+  return options;
 }
 
 export default function ProductDetails({ product }) {
   const router = useRouter();
-  const options = product?.options || [];
-  const images = product?.images?.length ? product.images : ["/images/placeholder.svg"];
-  const optionSignature = useMemo(() => options.map((o) => `${o.name}:${o.values.join(",")}`).join("|"), [options]);
+  const options = product?.options?.length ? product.options : toLegacyOptions(product?.variants);
+  const images = product?.images?.length
+    ? product.images.map((img) => (typeof img === "string" ? img : img.url)).filter(Boolean)
+    : ["/images/placeholder.svg"];
+
+  const optionSignature = useMemo(
+    () => options.map((o) => `${o.name}:${o.values.join(",")}`).join("|"),
+    [options],
+  );
 
   const [selected, setSelected] = useState(() => {
     const initial = {};
@@ -21,15 +35,14 @@ export default function ProductDetails({ product }) {
   });
 
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [addingToCart, setAddingToCart] = useState(false);
 
-  // If the user navigates to a different product, reset selections for that product.
   useEffect(() => {
     const initial = {};
     for (const opt of options) initial[opt.name] = "";
     setSelected(initial);
   }, [optionSignature]);
 
-  // Reset image when switching products.
   useEffect(() => {
     setActiveImageIdx(0);
   }, [product?.slug]);
@@ -37,119 +50,205 @@ export default function ProductDetails({ product }) {
   const optionNames = useMemo(() => options.map((o) => o.name), [options]);
   const hasAllSelections = optionNames.every((name) => selected[name]);
 
-  const activeSrc = images[Math.min(activeImageIdx, images.length - 1)] || images[0];
+  const clampedIdx = Math.min(activeImageIdx, images.length - 1);
+  const activeSrc = images[clampedIdx] || images[0];
+  const title = product.title || product.name;
+
+  function prevImage() {
+    setActiveImageIdx((i) => (i - 1 + images.length) % images.length);
+  }
+  function nextImage() {
+    setActiveImageIdx((i) => (i + 1) % images.length);
+  }
+
+  async function handleAddToCart() {
+    setAddingToCart(true);
+    try {
+      const selectedVariantIndex = (product.variants || []).findIndex(
+        (v) =>
+          (!selected.size || v.size === selected.size) &&
+          (!selected.colour || v.colour === selected.colour),
+      );
+      await api.addToCart({
+        productId: product._id,
+        variantIndex: selectedVariantIndex >= 0 ? selectedVariantIndex : 0,
+        quantity: 1,
+      });
+      router.push("/cart");
+    } catch {
+      router.push("/cart");
+    } finally {
+      setAddingToCart(false);
+    }
+  }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10">
-      <div>
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+
+      {/* ── Images ──────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3">
+        {/* Main image */}
         <div
-          className="relative aspect-square rounded-2xl border border-neutral-200 bg-neutral-50 overflow-hidden"
+          className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-neutral-100"
+          onKeyDown={(e) => {
+            if (images.length <= 1) return;
+            if (e.key === "ArrowLeft") prevImage();
+            if (e.key === "ArrowRight") nextImage();
+          }}
           tabIndex={images.length > 1 ? 0 : -1}
           role={images.length > 1 ? "group" : undefined}
           aria-label={images.length > 1 ? "Product images" : undefined}
-          onKeyDown={(e) => {
-            if (images.length <= 1) return;
-            if (e.key === "ArrowLeft") setActiveImageIdx((i) => (i - 1 + images.length) % images.length);
-            if (e.key === "ArrowRight") setActiveImageIdx((i) => (i + 1) % images.length);
-          }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            key={activeSrc}
             src={activeSrc}
-            alt={`${product.title} image ${activeImageIdx + 1}`}
-            className="h-full w-full object-cover"
+            alt={`${title} — image ${clampedIdx + 1}`}
+            className="h-full w-full object-cover transition-opacity duration-300"
           />
 
-          {images.length > 1 ? (
+          {images.length > 1 && (
             <>
               <button
                 type="button"
-                onClick={() => setActiveImageIdx((i) => (i - 1 + images.length) % images.length)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-neutral-200 bg-white/70 backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+                onClick={prevImage}
                 aria-label="Previous image"
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 opacity-0 group-hover:opacity-100"
               >
-                <span aria-hidden="true">←</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
               </button>
               <button
                 type="button"
-                onClick={() => setActiveImageIdx((i) => (i + 1) % images.length)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-neutral-200 bg-white/70 backdrop-blur transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+                onClick={nextImage}
                 aria-label="Next image"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 opacity-0 group-hover:opacity-100"
               >
-                <span aria-hidden="true">→</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
               </button>
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-neutral-200 bg-white/75 px-3 py-1 text-[11px] text-neutral-700 backdrop-blur">
-                {activeImageIdx + 1}/{images.length}
+
+              {/* Dot indicators */}
+              <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveImageIdx(i)}
+                    aria-label={`Go to image ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all focus-visible:outline-none ${
+                      i === clampedIdx ? "w-5 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                    }`}
+                  />
+                ))}
               </div>
             </>
-          ) : null}
+          )}
         </div>
 
-        {images.length > 1 ? (
-          <div
-            className="mt-4 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-1"
-            aria-label="Product images"
-          >
+        {/* Thumbnail strip */}
+        {images.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
             {images.map((src, idx) => {
-              const active = idx === activeImageIdx;
+              const active = idx === clampedIdx;
               return (
                 <button
                   key={`${src}-${idx}`}
                   type="button"
                   onClick={() => setActiveImageIdx(idx)}
-                  className={[
-                    "flex-none snap-start h-16 w-16 rounded-xl overflow-hidden border bg-white transition",
-                    active ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2" : "border-neutral-200 hover:border-neutral-300",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2",
-                  ].join(" ")}
                   aria-label={`View image ${idx + 1}`}
                   aria-current={active ? "true" : "false"}
+                  className={[
+                    "flex-none h-[72px] w-[72px] overflow-hidden rounded-xl border-2 bg-neutral-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1",
+                    active ? "border-neutral-900" : "border-transparent opacity-60 hover:opacity-90",
+                  ].join(" ")}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`${product.title} thumbnail ${idx + 1}`} className="h-full w-full object-cover" />
+                  <img
+                    src={src}
+                    alt={`${title} thumbnail ${idx + 1}`}
+                    className="h-full w-full object-cover"
+                  />
                 </button>
               );
             })}
           </div>
-        ) : null}
+        )}
       </div>
 
-      <div>
-        <div className="text-xs text-neutral-600">Shopping Cart</div>
-        <h1 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">{product.title}</h1>
-        <div className="mt-2 text-xl font-medium text-neutral-900">{formatPrice(product.price)}</div>
+      {/* ── Details ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col">
+        {product.category?.name && (
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+            {product.category.name}
+          </p>
+        )}
 
-        <p className="mt-3 text-sm leading-snug text-neutral-700 sm:mt-4 sm:leading-relaxed">{product.description}</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+          {title}
+        </h1>
 
-        <div className="mt-6">
-          {options.map((opt) => (
-            <VariantSelector
-              key={opt.name}
-              option={opt}
-              value={selected[opt.name]}
-              onChange={(v) => setSelected((prev) => ({ ...prev, [opt.name]: v }))}
-            />
-          ))}
+        <div className="mt-3 flex items-baseline gap-3">
+          <span className="text-2xl font-semibold text-neutral-900">
+            {formatRand(product.price)}
+          </span>
+          {product.compareAtPrice && product.compareAtPrice > product.price && (
+            <span className="text-base text-neutral-400 line-through">
+              {formatRand(product.compareAtPrice)}
+            </span>
+          )}
         </div>
 
-        <div className="mt-6">
+        {product.description && (
+          <p className="mt-4 text-sm leading-relaxed text-neutral-600 sm:text-base">
+            {product.description}
+          </p>
+        )}
+
+        {/* Variant selectors */}
+        {options.length > 0 && (
+          <div className="mt-6 space-y-4">
+            {options.map((opt) => (
+              <VariantSelector
+                key={opt.name}
+                option={opt}
+                value={selected[opt.name]}
+                onChange={(v) => setSelected((prev) => ({ ...prev, [opt.name]: v }))}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Add to cart */}
+        <div className="mt-8">
           <button
             type="button"
-            disabled={!hasAllSelections}
-            onClick={() => router.push("/cart")}
+            disabled={!hasAllSelections || addingToCart}
+            onClick={handleAddToCart}
             className={[
-              "inline-flex w-full items-center justify-center rounded-full border px-6 py-3 text-center text-sm font-medium transition",
-              hasAllSelections ? "bg-neutral-900 text-white border-neutral-900 hover:opacity-90" : "bg-neutral-200 text-neutral-500 border-neutral-200 cursor-not-allowed",
+              "w-full rounded-full border px-6 py-3.5 text-sm font-semibold tracking-wide transition",
+              hasAllSelections && !addingToCart
+                ? "bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-800 active:bg-neutral-950"
+                : "cursor-not-allowed bg-neutral-100 text-neutral-400 border-neutral-100",
             ].join(" ")}
           >
-            Add to cart
+            {addingToCart ? "Adding…" : hasAllSelections ? "Add to cart" : "Select options to continue"}
           </button>
-          <div className="mt-3 text-center text-xs text-neutral-500">
-            {hasAllSelections ? "Ready. (Mock add to cart)" : "Select options to continue."}
-          </div>
         </div>
+
+        {/* Tags */}
+        {product.tags?.length > 0 && (
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {product.tags.map((tag) => (
+              <span key={tag} className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-500">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-

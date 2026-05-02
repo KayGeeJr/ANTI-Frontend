@@ -101,7 +101,7 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Right: cart + hamburger (mobile) / search + cart (md+) */}
+        {/* Right: account + cart + hamburger (mobile) / search + account + cart (sm+) */}
         <div className="flex shrink-0 items-center justify-end gap-2 md:gap-3">
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1.5">
             <input
@@ -112,6 +112,23 @@ export default function Header() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
+
+          <Link
+            href="/account"
+            aria-label="Account"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-900 transition-colors hover:bg-neutral-50"
+            onClick={closeMenu}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.5" />
+              <path
+                d="M5 20c0-3.3 3.1-6 7-6s7 2.7 7 6"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Link>
 
           <Link
             href={cartHref}
