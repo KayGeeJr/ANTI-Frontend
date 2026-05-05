@@ -151,7 +151,7 @@ function emptyProduct() {
   return { name: "", description: "", price: "", category: "", collection: "", tags: "", size: "", colour: "", stock: "0", sku: "", newImages: [], existingImages: [], imagesToRemove: [] };
 }
 function emptyCategory() {
-  return { name: "", description: "", video: "", existingImage: null, newImage: null, removeImage: false };
+  return { name: "", description: "", video: "", existingImage: null, newImage: null, removeImage: false, newVideo: null, removeVideo: false };
 }
 
 /** Normalize populated or raw Mongoose refs for form selects (avoids sending "" as category on save). */
@@ -404,6 +404,8 @@ export default function AdminPage() {
       existingImage: img,
       newImage: null,
       removeImage: false,
+      newVideo: null,
+      removeVideo: false,
     });
     setCategoryModal(true);
   }
@@ -415,9 +417,15 @@ export default function AdminPage() {
       const fd = new FormData();
       fd.append("name", categoryForm.name);
       fd.append("description", categoryForm.description);
-      fd.append("video", categoryForm.video || "");
       if (categoryForm.newImage) fd.append("image", categoryForm.newImage);
       if (editingCategory && categoryForm.removeImage) fd.append("removeImage", "true");
+      if (categoryForm.newVideo) {
+        fd.append("video", categoryForm.newVideo);
+      } else if (editingCategory && categoryForm.removeVideo) {
+        fd.append("removeVideo", "true");
+      } else if (!categoryForm.newVideo) {
+        fd.append("video", categoryForm.video || "");
+      }
 
       if (editingCategory) {
         await api.updateCategory(editingCategory._id, fd);
@@ -1074,23 +1082,74 @@ export default function AdminPage() {
               />
             </Field>
 
-            <Field label="Video URL (optional)">
-              <input
-                className={INPUT_CLS}
-                placeholder="https://…  or /images/anti_images/vests.mp4"
-                value={categoryForm.video}
-                onChange={e => setCategoryForm(p => ({ ...p, video: e.target.value }))}
-              />
-              {categoryForm.video && (
-                <video
-                  key={categoryForm.video}
-                  src={categoryForm.video}
-                  className="mt-2 w-full rounded-xl object-cover"
-                  style={{ maxHeight: 140 }}
-                  muted
-                  loop
-                  playsInline
-                  autoPlay
+            <Field label="Video (upload or URL)">
+              {/* Existing uploaded video */}
+              {categoryForm.video && !categoryForm.removeVideo && !categoryForm.newVideo && (
+                <div className="mb-3">
+                  <div className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100">
+                    <video
+                      src={categoryForm.video}
+                      className="w-full rounded-xl object-cover"
+                      style={{ maxHeight: 140 }}
+                      muted loop playsInline autoPlay
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove video"
+                      onClick={() => setCategoryForm(p => ({ ...p, removeVideo: true, video: "" }))}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition group-hover:opacity-100"
+                    >
+                      <Icon d={ICONS.x} className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-neutral-400">Hover to remove</p>
+                </div>
+              )}
+
+              {/* New video file preview */}
+              {categoryForm.newVideo && (
+                <div className="mb-3">
+                  <div className="group relative overflow-hidden rounded-xl border border-blue-200 bg-neutral-100">
+                    <video
+                      src={URL.createObjectURL(categoryForm.newVideo)}
+                      className="w-full rounded-xl object-cover"
+                      style={{ maxHeight: 140 }}
+                      muted loop playsInline autoPlay
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove new video"
+                      onClick={() => setCategoryForm(p => ({ ...p, newVideo: null }))}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition group-hover:opacity-100"
+                    >
+                      <Icon d={ICONS.x} className="w-5 h-5 text-white" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-blue-500/80 py-0.5 text-center text-[9px] text-white">new</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload video file */}
+              {!categoryForm.newVideo && (
+                <input
+                  type="file"
+                  accept="video/mp4,video/mov,video/webm,video/avi,video/*"
+                  className="text-sm text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-neutral-700 hover:file:bg-neutral-200 transition"
+                  onChange={e => {
+                    const file = e.target.files?.[0] || null;
+                    if (file) setCategoryForm(p => ({ ...p, newVideo: file, removeVideo: false, video: "" }));
+                    e.target.value = "";
+                  }}
+                />
+              )}
+
+              {/* Fallback: paste URL */}
+              {!categoryForm.newVideo && !categoryForm.video && (
+                <input
+                  className={INPUT_CLS + " mt-2"}
+                  placeholder="Or paste a video URL…"
+                  value={categoryForm.video}
+                  onChange={e => setCategoryForm(p => ({ ...p, video: e.target.value }))}
                 />
               )}
             </Field>

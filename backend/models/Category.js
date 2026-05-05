@@ -24,6 +24,7 @@ const categorySchema = new mongoose.Schema(
     description: { type: String, trim: true },
     image: imageSchema,
     video: { type: String, trim: true },
+    videoPublicId: { type: String, trim: true },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },

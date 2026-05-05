@@ -18,8 +18,12 @@ async function createCategory(req, res, next) {
       res.status(400);
       throw new Error("name is required");
     }
-    const image = req.file ? { url: req.file.path, publicId: req.file.filename } : undefined;
-    const category = await Category.create({ name, description, image });
+    const imageFile = req.files?.image?.[0] || req.file;
+    const videoFile = req.files?.video?.[0];
+    const image = imageFile ? { url: imageFile.path, publicId: imageFile.filename } : undefined;
+    const video = videoFile ? videoFile.path : (req.body.video || undefined);
+    const videoPublicId = videoFile ? videoFile.filename : undefined;
+    const category = await Category.create({ name, description, image, video, videoPublicId });
     console.log("Created category:", category._id.toString());
     res.status(201).json({ success: true, category });
   } catch (error) {
@@ -50,19 +54,39 @@ async function updateCategory(req, res, next) {
     }
     if (req.body.name !== undefined) category.name = req.body.name;
     if (req.body.description !== undefined) category.description = req.body.description;
-    if (req.body.video !== undefined) category.video = req.body.video || undefined;
     if (req.body.isActive !== undefined) category.isActive = req.body.isActive === true || req.body.isActive === "true";
 
-    if (req.file) {
+    const imageFile = req.files?.image?.[0] || req.file;
+    const videoFile = req.files?.video?.[0];
+
+    // Handle image upload or removal
+    if (imageFile) {
       if (category.image?.publicId) {
         try { await cloudinary.uploader.destroy(category.image.publicId); } catch {}
       }
-      category.image = { url: req.file.path, publicId: req.file.filename };
+      category.image = { url: imageFile.path, publicId: imageFile.filename };
     } else if (req.body.removeImage === "true") {
       if (category.image?.publicId) {
         try { await cloudinary.uploader.destroy(category.image.publicId); } catch {}
       }
       category.image = undefined;
+    }
+
+    // Handle video upload, URL, or removal
+    if (videoFile) {
+      if (category.videoPublicId) {
+        try { await cloudinary.uploader.destroy(category.videoPublicId, { resource_type: "video" }); } catch {}
+      }
+      category.video = videoFile.path;
+      category.videoPublicId = videoFile.filename;
+    } else if (req.body.removeVideo === "true") {
+      if (category.videoPublicId) {
+        try { await cloudinary.uploader.destroy(category.videoPublicId, { resource_type: "video" }); } catch {}
+      }
+      category.video = undefined;
+      category.videoPublicId = undefined;
+    } else if (req.body.video !== undefined) {
+      category.video = req.body.video || undefined;
     }
 
     await category.save();
