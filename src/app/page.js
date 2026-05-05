@@ -2,10 +2,10 @@ import Link from "next/link";
 import mockCatalog from "../data/mockCatalog";
 import FeaturedProductTile from "../components/FeaturedProductTile";
 import RevealOnScroll from "../components/RevealOnScroll";
-import CategoryCarousel from "../components/CategoryCarousel";
 import NewsletterForm from "../components/NewsletterForm";
 import GalleryCarousel from "../components/GalleryCarousel";
 import RandomFeaturedProducts from "../components/RandomFeaturedProducts";
+import HomepageCollections from "../components/HomepageCollections";
 
 function formatPrice(price) {
   return `R${price}.00`;
@@ -15,22 +15,6 @@ const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 rounded-sm";
 
 const BACKEND = process.env.BACKEND_URL || "http://localhost:5001/api";
-
-async function getCategories() {
-  try {
-    const res = await fetch(`${BACKEND}/categories`, { next: { revalidate: 300 } });
-    if (!res.ok) return mockCatalog.categories;
-    const data = await res.json();
-    return (data.categories || []).map((c) => ({
-      slug: c.slug,
-      title: c.name,
-      image: c.image?.url || c.image || null,
-      video: c.video || null,
-    }));
-  } catch {
-    return mockCatalog.categories;
-  }
-}
 
 async function getFeaturedProducts() {
   try {
@@ -51,7 +35,7 @@ async function getFeaturedProducts() {
 }
 
 export default async function HomePage() {
-  const [categories, featuredProducts] = await Promise.all([getCategories(), getFeaturedProducts()]);
+  const featuredProducts = await getFeaturedProducts();
   const galleryImages = mockCatalog.galleryImages || [];
 
   return (
@@ -211,30 +195,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="bg-white home-section-y" aria-labelledby="categories-heading">
-        <div className="home-container">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 id="categories-heading" className="text-xl font-semibold tracking-tight text-neutral-900 md:text-2xl">
-                Categories
-              </h2>
-              <p className="mt-1 text-sm text-neutral-600">Browse by collection and mood.</p>
-            </div>
-            <Link
-              href="/shop"
-              className={`text-sm text-neutral-700 underline-offset-4 hover:underline ${linkFocus}`}
-            >
-              View Shop
-            </Link>
-          </div>
-          <RevealOnScroll>
-            <div className="mt-6 sm:mt-8">
-              <CategoryCarousel categories={categories} />
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
+      {/* Collections */}
+      <HomepageCollections />
 
       {/* Custom Orders */}
       <section className="border-t border-neutral-200/60 bg-neutral-50 home-section-y" aria-labelledby="custom-orders-heading">
