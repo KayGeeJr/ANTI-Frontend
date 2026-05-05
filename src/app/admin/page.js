@@ -503,9 +503,10 @@ export default function AdminPage() {
 
   if (booting) {
     return (
-      <div className="flex h-screen items-center justify-center bg-neutral-50">
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-neutral-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-16 w-16 animate-pulse rounded-full object-cover opacity-80" />
+        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-32 w-32 animate-pulse rounded-full object-cover object-top opacity-90" />
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400 animate-pulse">Loading...</p>
       </div>
     );
   }

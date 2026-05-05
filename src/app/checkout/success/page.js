@@ -27,7 +27,7 @@ function SuccessContent() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-16 w-16 animate-pulse rounded-full object-cover opacity-80" />
+        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-32 w-32 animate-pulse rounded-full object-cover object-top opacity-90" />
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function CheckoutSuccessPage() {
     <Suspense fallback={
       <div className="flex min-h-[60vh] items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-16 w-16 animate-pulse rounded-full object-cover opacity-80" />
+        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-32 w-32 animate-pulse rounded-full object-cover object-top opacity-90" />
       </div>
     }>
       <SuccessContent />
