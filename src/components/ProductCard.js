@@ -26,7 +26,7 @@ export default function ProductCard({ product }) {
           </div>
           <div className="mt-1.5 text-xs font-semibold text-neutral-900 sm:mt-2 sm:text-sm">{formatRand(product.price)}</div>
           <div className="mt-2 flex justify-center sm:mt-3">
-            <span className="inline-flex items-center justify-center rounded-full bg-neutral-900 px-3 py-1.5 text-center text-[10px] text-white opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 sm:px-5 sm:py-2 sm:text-[11px]">
+            <span className="inline-flex items-center justify-center rounded-full bg-neutral-900 px-3 py-1.5 text-center text-[10px] text-white sm:px-5 sm:py-2 sm:text-[11px]">
               SHOP
             </span>
           </div>

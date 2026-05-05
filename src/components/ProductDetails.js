@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import VariantSelector from "./VariantSelector";
 import { api } from "../lib/api";
@@ -36,6 +36,7 @@ export default function ProductDetails({ product }) {
 
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
+  const stripRef = useRef(null);
 
   useEffect(() => {
     const initial = {};
@@ -54,11 +55,26 @@ export default function ProductDetails({ product }) {
   const activeSrc = images[clampedIdx] || images[0];
   const title = product.title || product.name;
 
+  function scrollToIdx(idx) {
+    const el = stripRef.current;
+    if (!el) return;
+    const child = el.children[idx];
+    if (child) child.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    setActiveImageIdx(idx);
+  }
+
   function prevImage() {
-    setActiveImageIdx((i) => (i - 1 + images.length) % images.length);
+    scrollToIdx((activeImageIdx - 1 + images.length) % images.length);
   }
   function nextImage() {
-    setActiveImageIdx((i) => (i + 1) % images.length);
+    scrollToIdx((activeImageIdx + 1) % images.length);
+  }
+
+  function handleStripScroll() {
+    const el = stripRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    setActiveImageIdx(Math.max(0, Math.min(idx, images.length - 1)));
   }
 
   async function handleAddToCart() {
@@ -87,25 +103,25 @@ export default function ProductDetails({ product }) {
 
       {/* ── Images ──────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3">
-        {/* Main image */}
-        <div
-          className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-neutral-100"
-          onKeyDown={(e) => {
-            if (images.length <= 1) return;
-            if (e.key === "ArrowLeft") prevImage();
-            if (e.key === "ArrowRight") nextImage();
-          }}
-          tabIndex={images.length > 1 ? 0 : -1}
-          role={images.length > 1 ? "group" : undefined}
-          aria-label={images.length > 1 ? "Product images" : undefined}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={activeSrc}
-            src={activeSrc}
-            alt={`${title} — image ${clampedIdx + 1}`}
-            className="h-full w-full object-cover transition-opacity duration-300"
-          />
+        {/* Scrollable image strip */}
+        <div className="relative">
+          <div
+            ref={stripRef}
+            onScroll={handleStripScroll}
+            className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl"
+            aria-label="Product images"
+          >
+            {images.map((src, idx) => (
+              <div key={`${src}-${idx}`} className="flex-none w-full snap-start aspect-[4/5] bg-neutral-100 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={`${title} — image ${idx + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
 
           {images.length > 1 && (
             <>
@@ -113,7 +129,7 @@ export default function ProductDetails({ product }) {
                 type="button"
                 onClick={prevImage}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 opacity-0 group-hover:opacity-100"
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M15 18l-6-6 6-6" />
@@ -123,7 +139,7 @@ export default function ProductDetails({ product }) {
                 type="button"
                 onClick={nextImage}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 opacity-0 group-hover:opacity-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow backdrop-blur-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M9 18l6-6-6-6" />
@@ -136,7 +152,7 @@ export default function ProductDetails({ product }) {
                   <button
                     key={i}
                     type="button"
-                    onClick={() => setActiveImageIdx(i)}
+                    onClick={() => scrollToIdx(i)}
                     aria-label={`Go to image ${i + 1}`}
                     className={`h-1.5 rounded-full transition-all focus-visible:outline-none ${
                       i === clampedIdx ? "w-5 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
@@ -157,7 +173,7 @@ export default function ProductDetails({ product }) {
                 <button
                   key={`${src}-${idx}`}
                   type="button"
-                  onClick={() => setActiveImageIdx(idx)}
+                  onClick={() => scrollToIdx(idx)}
                   aria-label={`View image ${idx + 1}`}
                   aria-current={active ? "true" : "false"}
                   className={[
