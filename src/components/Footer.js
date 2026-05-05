@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-neutral-200 bg-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 text-center">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <div className="font-semibold tracking-tight mb-2">ANTI</div>
@@ -18,7 +18,7 @@ export default function Footer() {
           </div>
           <div>
             <div className="font-semibold tracking-tight mb-2">Explore</div>
-            <div className="flex flex-col gap-2 text-sm text-neutral-700">
+            <div className="flex flex-col gap-2 text-sm text-neutral-700 items-center">
               <Link href="/about" className="hover:opacity-80">
                 About
               </Link>
@@ -42,7 +42,7 @@ export default function Footer() {
 
             <div className="mt-4">
               <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">Social</div>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                 {socialLinks.map((s) => {
                   const Icon = socialIcons[s.icon];
                   return (

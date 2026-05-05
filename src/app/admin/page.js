@@ -15,6 +15,7 @@ function Icon({ d, className = "w-5 h-5" }) {
 }
 
 const ICONS = {
+  menu: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5",
   dashboard: "M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z",
   products: "M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z",
   categories: "M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3zM6 6h.008v.008H6V6z",
@@ -160,6 +161,45 @@ function mongoRefId(ref) {
   return String(ref);
 }
 
+// ── Sidebar nav items ─────────────────────────────────────────────────────────
+
+const NAV_ITEMS = [
+  { key: "dashboard",  label: "Dashboard",  icon: ICONS.dashboard  },
+  { key: "products",   label: "Products",   icon: ICONS.products   },
+  { key: "categories", label: "Categories", icon: ICONS.categories },
+  { key: "orders",     label: "Orders",     icon: ICONS.orders     },
+];
+
+function SidebarContent({ tab, setTab, user, handleLogout, onNav }) {
+  return (
+    <>
+      <div className="mb-7 flex items-center gap-2.5 px-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+          <span className="text-sm font-black tracking-tighter text-neutral-900">A</span>
+        </div>
+        <span className="text-sm font-semibold tracking-tight text-white">ANTI</span>
+      </div>
+      <nav className="flex-1 space-y-0.5">
+        {NAV_ITEMS.map(item => (
+          <NavItem key={item.key} label={item.label} iconPath={item.icon}
+            active={tab === item.key} onClick={() => { setTab(item.key); onNav(); }} />
+        ))}
+      </nav>
+      <div className="border-t border-white/10 pt-4">
+        <div className="mb-2 px-3">
+          <div className="truncate text-xs font-medium text-white">{user.email}</div>
+          <div className="text-[11px] text-neutral-500">Administrator</div>
+        </div>
+        <button onClick={handleLogout}
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-neutral-400 transition hover:bg-white/10 hover:text-white">
+          <Icon d={ICONS.logout} className="w-4 h-4 shrink-0" />
+          Sign out
+        </button>
+      </div>
+    </>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
@@ -172,6 +212,7 @@ export default function AdminPage() {
 
   // Navigation
   const [tab, setTab] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Data
   const [categories, setCategories] = useState([]);
@@ -513,66 +554,58 @@ export default function AdminPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-neutral-100 font-sans">
 
-      {/* Sidebar */}
-      <aside className="flex w-56 shrink-0 flex-col bg-[#111] px-3 py-5">
-        <div className="mb-7 flex items-center gap-2.5 px-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-            <span className="text-sm font-black tracking-tighter text-neutral-900">A</span>
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-white">ANTI</span>
-        </div>
-
-        <nav className="flex-1 space-y-0.5">
-          {[
-            { key: "dashboard",  label: "Dashboard",  icon: ICONS.dashboard  },
-            { key: "products",   label: "Products",   icon: ICONS.products   },
-            { key: "categories", label: "Categories", icon: ICONS.categories },
-            { key: "orders",     label: "Orders",     icon: ICONS.orders     },
-          ].map(item => (
-            <NavItem key={item.key} label={item.label} iconPath={item.icon}
-              active={tab === item.key} onClick={() => setTab(item.key)} />
-          ))}
-        </nav>
-
-        <div className="border-t border-white/10 pt-4">
-          <div className="mb-2 px-3">
-            <div className="truncate text-xs font-medium text-white">{user.email}</div>
-            <div className="text-[11px] text-neutral-500">Administrator</div>
-          </div>
-          <button onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-neutral-400 transition hover:bg-white/10 hover:text-white">
-            <Icon d={ICONS.logout} className="w-4 h-4 shrink-0" />
-            Sign out
-          </button>
-        </div>
+      {/* Sidebar — desktop only */}
+      <aside className="hidden md:flex w-56 shrink-0 flex-col bg-[#111] px-3 py-5">
+        <SidebarContent tab={tab} setTab={setTab} user={user} handleLogout={handleLogout} onNav={() => {}} />
       </aside>
+
+      {/* Mobile sidebar drawer */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+          <aside className="relative flex w-64 shrink-0 flex-col bg-[#111] px-3 py-5 shadow-2xl">
+            <SidebarContent tab={tab} setTab={setTab} user={user} handleLogout={handleLogout} onNav={() => setSidebarOpen(false)} />
+          </aside>
+        </div>
+      )}
 
       {/* Main */}
       <div className="flex flex-1 flex-col overflow-hidden">
 
         {/* Topbar */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-6">
-          <h1 className="text-sm font-semibold capitalize text-neutral-900">{tab}</h1>
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-3 md:px-6">
+          <div className="flex items-center gap-2">
+            <button
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-600 transition hover:bg-neutral-100 md:hidden"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <Icon d={ICONS.menu} className="w-5 h-5" />
+            </button>
+            <h1 className="text-sm font-semibold capitalize text-neutral-900">{tab}</h1>
+          </div>
           <div className="flex items-center gap-2">
             {tab === "products" && (
               <button onClick={openCreateProduct}
-                className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800">
+                className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 md:px-4 md:text-sm">
                 <Icon d={ICONS.plus} className="w-3.5 h-3.5" />
-                Add Product
+                <span className="hidden sm:inline">Add Product</span>
+                <span className="sm:hidden">Add</span>
               </button>
             )}
             {tab === "categories" && (
               <button onClick={openCreateCategory}
-                className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-neutral-800">
+                className="flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-neutral-800 md:px-4 md:text-sm">
                 <Icon d={ICONS.plus} className="w-3.5 h-3.5" />
-                Add Category
+                <span className="hidden sm:inline">Add Category</span>
+                <span className="sm:hidden">Add</span>
               </button>
             )}
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 md:p-6">
 
           {/* ── Dashboard ─────────────────────────────────────────────── */}
           {tab === "dashboard" && (
@@ -592,6 +625,7 @@ export default function AdminPage() {
                 <div className="border-b border-neutral-100 px-5 py-4">
                   <h2 className="text-sm font-semibold text-neutral-900">Recent Orders</h2>
                 </div>
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-100 bg-neutral-50/80">
@@ -627,6 +661,7 @@ export default function AdminPage() {
                     )}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}
@@ -635,12 +670,13 @@ export default function AdminPage() {
           {tab === "products" && (
             <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
               <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3.5">
-                <input className="w-64 rounded-xl border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
+                <input className="w-full max-w-xs rounded-xl border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
                   placeholder="Search products…"
                   value={productSearch}
                   onChange={e => setProductSearch(e.target.value)} />
-                <span className="ml-auto text-xs text-neutral-400">{filteredProducts.length} items</span>
+                <span className="ml-auto shrink-0 text-xs text-neutral-400">{filteredProducts.length} items</span>
               </div>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50/80">
@@ -706,12 +742,14 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 
           {/* ── Categories ────────────────────────────────────────────── */}
           {tab === "categories" && (
             <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50/80">
@@ -761,6 +799,7 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 
@@ -768,7 +807,7 @@ export default function AdminPage() {
           {tab === "orders" && (
             <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
               <div className="flex flex-wrap items-center gap-3 border-b border-neutral-100 px-5 py-3.5">
-                <input className="w-56 rounded-xl border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
+                <input className="w-full max-w-xs rounded-xl border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
                   placeholder="Search orders…"
                   value={orderSearch}
                   onChange={e => setOrderSearch(e.target.value)} />
@@ -779,8 +818,9 @@ export default function AdminPage() {
                   <option value="">All statuses</option>
                   {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <span className="ml-auto text-xs text-neutral-400">{filteredOrders.length} orders</span>
+                <span className="ml-auto shrink-0 text-xs text-neutral-400">{filteredOrders.length} orders</span>
               </div>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-neutral-100 bg-neutral-50/80">
@@ -822,6 +862,7 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </main>
