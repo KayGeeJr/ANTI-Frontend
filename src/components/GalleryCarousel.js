@@ -86,9 +86,11 @@ export default function GalleryCarousel({ images = [] }) {
             >
               <RevealOnScroll variant="image" delayMs={idx * 60} className="h-full min-w-0">
                 <div className="flex min-h-[min(72vh,680px)] max-h-[min(72vh,680px)] items-center justify-center overflow-hidden bg-neutral-100 p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={src}
                     alt={`Gallery image ${idx + 1}`}
+                    loading="lazy"
                     className="max-h-[min(72vh,680px)] max-w-full w-auto h-auto object-contain transition-transform duration-700 hover:scale-[1.02]"
                   />
                 </div>

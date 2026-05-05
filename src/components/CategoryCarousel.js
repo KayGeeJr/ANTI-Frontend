@@ -1,8 +1,43 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import RevealOnScroll from "./RevealOnScroll";
+
+function LazyVideo({ src, poster, className }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {});
+        } else {
+          el.pause();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      className={className}
+      src={src}
+      poster={poster}
+      muted
+      playsInline
+      loop
+      preload="none"
+      aria-hidden="true"
+    />
+  );
+}
 
 export default function CategoryCarousel({ categories }) {
   const scrollerRef = useRef(null);
@@ -55,22 +90,17 @@ export default function CategoryCarousel({ categories }) {
                 <Link href={`/category/${c.slug}`} className={card} aria-label={c.title}>
                   <div className="relative aspect-[3/4] bg-neutral-50 overflow-hidden">
                     {c.video ? (
-                      <video
-                        className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.06]"
+                      <LazyVideo
                         src={c.video}
                         poster={c.image}
-                        muted
-                        playsInline
-                        loop
-                        autoPlay
-                        preload="auto"
-                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.06]"
                       />
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={c.image}
                         alt={c.title}
+                        loading="lazy"
                         className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.06]"
                       />
                     )}
@@ -107,4 +137,3 @@ export default function CategoryCarousel({ categories }) {
     </div>
   );
 }
-
