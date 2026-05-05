@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../../components/ProductCard";
 import RevealOnScroll from "../../components/RevealOnScroll";
+import LogoLoader from "../../components/LogoLoader";
 import { api } from "../../lib/api";
 
 export default function ShopPage() {
@@ -58,6 +59,9 @@ export default function ShopPage() {
       </div>
 
       {error ? <div className="mt-6 text-sm text-red-600">{error}</div> : null}
+      {loading ? (
+        <LogoLoader />
+      ) : null}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-5 lg:grid-cols-3">
         {products.map((p, idx) => (
           <RevealOnScroll key={p.slug} delayMs={idx * 30}>

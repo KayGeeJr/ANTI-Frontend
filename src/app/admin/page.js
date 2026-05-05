@@ -354,8 +354,9 @@ export default function AdminPage() {
       for (const file of (productForm.newImages || [])) {
         fd.append("images", file);
       }
-      if (editingProduct && productForm.imagesToRemove?.length) {
-        fd.append("removeImagePublicIds", JSON.stringify(productForm.imagesToRemove));
+      if (editingProduct) {
+        // Send exact list of existing image URLs to keep — backend removes anything not in this list
+        fd.append("keepImageUrls", JSON.stringify((productForm.existingImages || []).map(img => img.url)));
       }
 
       if (editingProduct) {
@@ -503,7 +504,8 @@ export default function AdminPage() {
   if (booting) {
     return (
       <div className="flex h-screen items-center justify-center bg-neutral-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/anti_images/logo1.jpeg" alt="ANTI" className="h-16 w-16 animate-pulse rounded-full object-cover opacity-80" />
       </div>
     );
   }

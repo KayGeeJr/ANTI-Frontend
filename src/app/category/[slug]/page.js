@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "../../../components/ProductCard";
 import RevealOnScroll from "../../../components/RevealOnScroll";
+import LogoLoader from "../../../components/LogoLoader";
 import { api } from "../../../lib/api";
 
 export default function CategoryPage() {
@@ -36,13 +37,7 @@ export default function CategoryPage() {
     return () => { isMounted = false; };
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
-      </div>
-    );
-  }
+  if (loading) return <LogoLoader />;
 
   if (error || !category) {
     return (

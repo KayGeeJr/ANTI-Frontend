@@ -3,6 +3,7 @@ import mockCatalog from "../data/mockCatalog";
 import FeaturedProductTile from "../components/FeaturedProductTile";
 import RevealOnScroll from "../components/RevealOnScroll";
 import CategoryCarousel from "../components/CategoryCarousel";
+import NewsletterForm from "../components/NewsletterForm";
 import GalleryCarousel from "../components/GalleryCarousel";
 import RandomFeaturedProducts from "../components/RandomFeaturedProducts";
 
@@ -13,8 +14,44 @@ function formatPrice(price) {
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 rounded-sm";
 
-export default function HomePage() {
-  const categories = mockCatalog.categories;
+const BACKEND = process.env.BACKEND_URL || "http://localhost:5001/api";
+
+async function getCategories() {
+  try {
+    const res = await fetch(`${BACKEND}/categories`, { next: { revalidate: 300 } });
+    if (!res.ok) return mockCatalog.categories;
+    const data = await res.json();
+    return (data.categories || []).map((c) => ({
+      slug: c.slug,
+      title: c.name,
+      image: c.image?.url || c.image || null,
+      video: c.video || null,
+    }));
+  } catch {
+    return mockCatalog.categories;
+  }
+}
+
+async function getFeaturedProducts() {
+  try {
+    const res = await fetch(`${BACKEND}/products?featured=true&limit=6&sort=newest`, { next: { revalidate: 300 } });
+    if (!res.ok) return mockCatalog.products;
+    const data = await res.json();
+    const products = data.products || [];
+    if (!products.length) return mockCatalog.products;
+    return products.map((p) => ({
+      slug: p.slug,
+      title: p.name,
+      price: Math.round(Number(p.price || 0) / 100),
+      images: (p.images || []).map((img) => (typeof img === "string" ? img : img?.url)).filter(Boolean),
+    }));
+  } catch {
+    return mockCatalog.products;
+  }
+}
+
+export default async function HomePage() {
+  const [categories, featuredProducts] = await Promise.all([getCategories(), getFeaturedProducts()]);
   const galleryImages = mockCatalog.galleryImages || [];
 
   return (
@@ -275,7 +312,7 @@ export default function HomePage() {
           <p className="mx-auto mt-2 max-w-2xl text-center text-sm leading-snug text-neutral-600 sm:mt-3 sm:leading-normal sm:text-[15px]">
             Hand-picked pieces from the current lineup.
           </p>
-          <RandomFeaturedProducts products={mockCatalog.products} count={4} />
+          <RandomFeaturedProducts products={featuredProducts} count={4} />
         </div>
       </section>
 
@@ -335,22 +372,8 @@ export default function HomePage() {
             <p className="mt-1.5 text-sm leading-snug text-white/75 sm:mt-2 sm:leading-normal sm:text-[15px]">
               Get updates on new drops and collections.
             </p>
-            <div className="mt-4 flex flex-col items-center gap-2 sm:mt-6 sm:gap-3 sm:flex-row sm:justify-center">
-              <label htmlFor="newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="newsletter-email"
-                type="email"
-                autoComplete="email"
-                className="min-h-[48px] w-full max-w-sm rounded-full border border-white/20 bg-white/10 px-5 text-sm text-white placeholder:text-white/45 outline-none transition-colors focus:border-white/40 focus:ring-2 focus:ring-white/30 sm:max-w-md sm:flex-1"
-              />
-              <button
-                type="button"
-                className="inline-flex min-h-[48px] w-full max-w-xs shrink-0 items-center justify-center rounded-full bg-white px-8 text-center text-sm font-medium uppercase tracking-[0.12em] text-neutral-900 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 sm:w-auto"
-              >
-                SUBSCRIBE
-              </button>
+            <div className="relative mt-4 sm:mt-6">
+              <NewsletterForm />
             </div>
           </div>
         </div>

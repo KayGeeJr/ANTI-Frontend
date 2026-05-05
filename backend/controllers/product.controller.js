@@ -166,15 +166,30 @@ async function updateProduct(req, res, next) {
     if (req.body.isFeatured !== undefined) product.isFeatured = parseBoolean(req.body.isFeatured);
     if (req.body.isActive !== undefined) product.isActive = parseBoolean(req.body.isActive);
 
-    if (req.body.removeImagePublicIds) {
+    if (req.body.keepImageUrls !== undefined) {
+      // Authoritative keep-list: remove any existing image whose URL is not in this list
+      const keepUrls = parseJsonField(req.body.keepImageUrls, null);
+      if (Array.isArray(keepUrls)) {
+        const removed = (product.images || []).filter((img) => {
+          const url = typeof img === "object" && img != null ? img.url : img;
+          return !keepUrls.includes(url);
+        });
+        for (const img of removed) {
+          const pid = typeof img === "object" && img != null ? img.publicId : undefined;
+          if (pid) {
+            try { await cloudinary.uploader.destroy(pid); } catch {}
+          }
+        }
+        product.images = (product.images || []).filter((img) => {
+          const url = typeof img === "object" && img != null ? img.url : img;
+          return keepUrls.includes(url);
+        });
+      }
+    } else if (req.body.removeImagePublicIds) {
       const toRemove = parseJsonField(req.body.removeImagePublicIds, []);
       if (Array.isArray(toRemove) && toRemove.length) {
         for (const publicId of toRemove) {
-          try {
-            await cloudinary.uploader.destroy(publicId);
-          } catch {
-            // Continue if Cloudinary removal fails.
-          }
+          try { await cloudinary.uploader.destroy(publicId); } catch {}
         }
         product.images = (product.images || []).filter((img) => {
           const pid = typeof img === "object" && img != null ? img.publicId : undefined;

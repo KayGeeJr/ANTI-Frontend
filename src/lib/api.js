@@ -121,6 +121,11 @@ export async function apiFetch(endpoint, options = {}) {
       }
     }
 
+    // Auto-clear expired / invalid token so user gets prompted to log in again
+    if (response.status === 401) {
+      removeToken();
+    }
+
     const message = isJson ? payload?.message || "Request failed" : payload || "Request failed";
     const error = new Error(message);
     error.status = response.status;

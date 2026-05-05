@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api, getToken, removeToken, setToken } from "../../lib/api";
+import { api, getSessionId, getToken, removeToken, setToken } from "../../lib/api";
+import LogoLoader from "../../components/LogoLoader";
 
 function initialRegister() {
   return { name: "", email: "", password: "" };
@@ -51,8 +52,10 @@ export default function AccountPage() {
     try {
       setError("");
       setMessage("");
+      const sessionId = getSessionId();
       const res = await api.register(registerData);
       setToken(res.token);
+      if (sessionId) await api.mergeCart(sessionId).catch(() => {});
       await loadMeAndOrders();
       setRegisterData(initialRegister());
       setMessage("Registration successful");
@@ -66,8 +69,10 @@ export default function AccountPage() {
     try {
       setError("");
       setMessage("");
+      const sessionId = getSessionId();
       const res = await api.login(loginData);
       setToken(res.token);
+      if (sessionId) await api.mergeCart(sessionId).catch(() => {});
       await loadMeAndOrders();
       setLoginData(initialLogin());
       setMessage("Logged in");
@@ -101,13 +106,7 @@ export default function AccountPage() {
     setMessage("Logged out");
   }
 
-  if (loading) {
-    return (
-      <div className="page-narrow">
-        <h1 className="page-title text-center">Loading account...</h1>
-      </div>
-    );
-  }
+  if (loading) return <LogoLoader />;
 
   if (!user) {
     return (

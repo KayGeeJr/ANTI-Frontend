@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProductDetails from "../../../components/ProductDetails";
 import RevealOnScroll from "../../../components/RevealOnScroll";
+import LogoLoader from "../../../components/LogoLoader";
 import { api } from "../../../lib/api";
 
 export default function ProductPage() {
@@ -36,13 +37,7 @@ export default function ProductPage() {
     };
   }, [slug]);
 
-  if (loading) {
-    return (
-      <div className="page-shell">
-        <h1 className="page-title text-center">Loading product...</h1>
-      </div>
-    );
-  }
+  if (loading) return <LogoLoader />;
 
   if (!product || error) {
     return (
