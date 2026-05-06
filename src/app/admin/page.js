@@ -22,6 +22,7 @@ const ICONS = {
   orders: "M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z",
   revenue: "M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z",
   logout: "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9",
+  custom: "M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z",
   plus: "M12 4.5v15m7.5-7.5h-15",
   x: "M6 18L18 6M6 6l12 12",
   check: "M4.5 12.75l6 6 9-13.5",
@@ -30,6 +31,19 @@ const ICONS = {
 // ── Status helpers ────────────────────────────────────────────────────────────
 
 const ORDER_STATUSES = ["processing", "confirmed", "shipped", "delivered", "cancelled"];
+const CUSTOM_ORDER_STATUSES = ["new", "in_review", "quoted", "in_progress", "completed", "declined"];
+
+function customOrderStatusCls(s) {
+  const m = {
+    new:         "bg-neutral-100 text-neutral-500",
+    in_review:   "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    quoted:      "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
+    in_progress: "bg-violet-50 text-violet-700 ring-1 ring-violet-200",
+    completed:   "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+    declined:    "bg-red-50 text-red-700 ring-1 ring-red-200",
+  };
+  return m[String(s).toLowerCase()] || "bg-neutral-100 text-neutral-500";
+}
 
 function orderStatusCls(s) {
   const m = {
@@ -147,8 +161,14 @@ function TH({ children, right }) {
 
 // ── Empty form states ─────────────────────────────────────────────────────────
 
+const DEFAULT_SIZES = ["XS", "S", "M", "L", "XL"];
+
+function defaultVariants() {
+  return DEFAULT_SIZES.map(s => ({ size: s, stock: 0, colour: "", sku: "" }));
+}
+
 function emptyProduct() {
-  return { name: "", description: "", price: "", category: "", collection: "", tags: "", size: "", colour: "", stock: "0", sku: "", newImages: [], existingImages: [], imagesToRemove: [] };
+  return { name: "", description: "", price: "", category: "", collection: "", tags: "", variants: defaultVariants(), newImages: [], existingImages: [], imagesToRemove: [] };
 }
 function emptyCategory() {
   return { name: "", description: "", video: "", existingImage: null, newImage: null, removeImage: false, newVideo: null, removeVideo: false };
@@ -164,10 +184,11 @@ function mongoRefId(ref) {
 // ── Sidebar nav items ─────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { key: "dashboard",  label: "Dashboard",  icon: ICONS.dashboard  },
-  { key: "products",   label: "Products",   icon: ICONS.products   },
-  { key: "categories", label: "Categories", icon: ICONS.categories },
-  { key: "orders",     label: "Orders",     icon: ICONS.orders     },
+  { key: "dashboard",     label: "Dashboard",      icon: ICONS.dashboard  },
+  { key: "products",      label: "Products",       icon: ICONS.products   },
+  { key: "categories",    label: "Categories",     icon: ICONS.categories },
+  { key: "orders",        label: "Orders",         icon: ICONS.orders     },
+  { key: "customOrders",  label: "Custom Orders",  icon: ICONS.custom     },
 ];
 
 function SidebarContent({ tab, setTab, user, handleLogout, onNav }) {
@@ -219,6 +240,10 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [customOrders, setCustomOrders] = useState([]);
+  const [customOrderStatusFilter, setCustomOrderStatusFilter] = useState("");
+  const [selectedCustomOrder, setSelectedCustomOrder] = useState(null);
+  const [customOrderNotes, setCustomOrderNotes] = useState("");
 
   // Notifications
   const [toastState, setToastState] = useState(null);
@@ -262,16 +287,18 @@ export default function AdminPage() {
   }, []);
 
   async function refresh() {
-    const [cats, prods, cols, ords] = await Promise.all([
+    const [cats, prods, cols, ords, custOrd] = await Promise.all([
       api.listCategories(),
       api.listProducts("?page=1&limit=100&sort=newest"),
       api.listCollections(),
       api.adminOrders("?page=1&limit=50"),
+      api.adminCustomOrders("?page=1&limit=100"),
     ]);
     setCategories(cats.categories || []);
     setProducts(prods.products || []);
     setCollections(cols.collections || []);
     setOrders(ords.orders || []);
+    setCustomOrders(custOrd.inquiries || []);
   }
 
   function showToast(message, type = "success") {
@@ -321,10 +348,10 @@ export default function AdminPage() {
       category: mongoRefId(p.category),
       collection: mongoRefId(p.collection),
       tags: (p.tags || []).join(", "),
-      size: p.variants?.[0]?.size || "",
-      colour: p.variants?.[0]?.colour || "",
-      stock: String(p.variants?.[0]?.stock ?? 0),
-      sku: p.variants?.[0]?.sku || "",
+      variants: DEFAULT_SIZES.map(s => {
+        const found = (p.variants || []).find(v => v.size === s);
+        return { size: s, stock: found ? Number(found.stock ?? 0) : 0, colour: found?.colour || "", sku: found?.sku || "" };
+      }),
       newImages: [],
       existingImages: (p.images || []).map(img =>
         typeof img === "string" ? { url: img, publicId: null } : img
@@ -876,8 +903,137 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* ── Custom Orders ────────────────────────────────────────────── */}
+          {tab === "customOrders" && (
+            <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
+              <div className="flex flex-wrap items-center gap-3 border-b border-neutral-100 px-5 py-3.5">
+                <select
+                  className="rounded-xl border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm text-neutral-700 focus:border-neutral-900 focus:outline-none transition"
+                  value={customOrderStatusFilter}
+                  onChange={e => setCustomOrderStatusFilter(e.target.value)}>
+                  <option value="">All statuses</option>
+                  {CUSTOM_ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <span className="ml-auto shrink-0 text-xs text-neutral-400">
+                  {customOrders.filter(o => !customOrderStatusFilter || o.status === customOrderStatusFilter).length} inquiries
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-100 bg-neutral-50/80">
+                      <TH>Customer</TH><TH>Email</TH><TH>Phone</TH><TH>Status</TH><TH>Received</TH><TH right>Action</TH>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-50">
+                    {customOrders
+                      .filter(o => !customOrderStatusFilter || o.status === customOrderStatusFilter)
+                      .map(o => (
+                      <tr key={o._id} className="transition hover:bg-neutral-50">
+                        <td className="px-5 py-3.5 font-medium text-neutral-900">{o.name}</td>
+                        <td className="px-5 py-3.5 text-xs text-neutral-500 max-w-[160px] truncate">{o.email}</td>
+                        <td className="px-5 py-3.5 text-xs text-neutral-500">{o.phone || "—"}</td>
+                        <td className="px-5 py-3.5">
+                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${customOrderStatusCls(o.status)}`}>
+                            {o.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-xs text-neutral-400">
+                          {new Date(o.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <button
+                            onClick={() => { setSelectedCustomOrder(o); setCustomOrderNotes(o.adminNotes || ""); }}
+                            className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100">
+                            Review
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {customOrders.filter(o => !customOrderStatusFilter || o.status === customOrderStatusFilter).length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-12 text-center text-sm text-neutral-400">
+                          No custom order inquiries yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </main>
       </div>
+
+      {/* ── Custom Order modal ───────────────────────────────────────────────── */}
+      {selectedCustomOrder && (
+        <Modal title={`Custom Order — ${selectedCustomOrder.name}`} onClose={() => setSelectedCustomOrder(null)}>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div><span className="text-neutral-400">Email</span><div className="font-medium">{selectedCustomOrder.email}</div></div>
+              <div><span className="text-neutral-400">Phone</span><div className="font-medium">{selectedCustomOrder.phone || "—"}</div></div>
+            </div>
+            <div className="text-sm">
+              <span className="text-neutral-400">Description</span>
+              <p className="mt-1 rounded-xl bg-neutral-50 p-3 text-neutral-700 whitespace-pre-wrap">{selectedCustomOrder.description}</p>
+            </div>
+            {selectedCustomOrder.measurements && (
+              <div className="text-sm">
+                <span className="text-neutral-400">Measurements</span>
+                <p className="mt-1 rounded-xl bg-neutral-50 p-3 text-neutral-700">{selectedCustomOrder.measurements}</p>
+              </div>
+            )}
+            {selectedCustomOrder.budget && (
+              <div className="text-sm"><span className="text-neutral-400">Budget: </span><span className="font-medium">{selectedCustomOrder.budget}</span></div>
+            )}
+            {selectedCustomOrder.referenceImages?.length > 0 && (
+              <div>
+                <div className="mb-1.5 text-xs text-neutral-400">Reference Images</div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCustomOrder.referenceImages.map((img, i) => (
+                    <a key={i} href={img.url} target="_blank" rel="noopener noreferrer">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.url} alt="" className="h-20 w-20 rounded-xl object-cover border border-neutral-200" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+            <Field label="Status">
+              <select className={INPUT_CLS + " cursor-pointer"}
+                defaultValue={selectedCustomOrder.status}
+                id="customOrderStatus">
+                {CUSTOM_ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </Field>
+            <Field label="Admin Notes">
+              <textarea className={INPUT_CLS} rows={3} value={customOrderNotes}
+                onChange={e => setCustomOrderNotes(e.target.value)}
+                placeholder="Internal notes…" />
+            </Field>
+            <button
+              disabled={submitting}
+              className="w-full rounded-xl bg-neutral-900 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:opacity-50"
+              onClick={async () => {
+                const status = document.getElementById("customOrderStatus").value;
+                setSubmitting(true);
+                try {
+                  await api.adminUpdateCustomOrder(selectedCustomOrder._id, { status, adminNotes: customOrderNotes });
+                  setCustomOrders(prev => prev.map(o => o._id === selectedCustomOrder._id ? { ...o, status, adminNotes: customOrderNotes } : o));
+                  setSelectedCustomOrder(null);
+                  showToast("Custom order updated");
+                } catch (err) {
+                  showToast(err.message || "Update failed", "error");
+                } finally {
+                  setSubmitting(false);
+                }
+              }}>
+              {submitting ? "Saving…" : "Save Changes"}
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* ── Product modal ────────────────────────────────────────────────────── */}
       {productModal && (

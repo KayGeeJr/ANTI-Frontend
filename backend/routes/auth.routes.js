@@ -10,6 +10,10 @@ const {
   addAddress,
   updateAddress,
   deleteAddress,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  resendVerification,
 } = require("../controllers/auth.controller");
 
 const router = express.Router();
@@ -26,6 +30,12 @@ const registerLimiter = rateLimit({
   message: { success: false, message: "Too many registrations, try again later." },
 });
 
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  message: { success: false, message: "Too many password reset requests, try again later." },
+});
+
 router.post("/register", registerLimiter, register);
 router.post("/login", loginLimiter, login);
 router.get("/me", protect, getMe);
@@ -34,5 +44,9 @@ router.put("/change-password", protect, changePassword);
 router.post("/address", protect, addAddress);
 router.put("/address/:addressId", protect, updateAddress);
 router.delete("/address/:addressId", protect, deleteAddress);
+router.post("/forgot-password", passwordResetLimiter, forgotPassword);
+router.post("/reset-password", passwordResetLimiter, resetPassword);
+router.get("/verify-email/:token", verifyEmail);
+router.post("/resend-verification", passwordResetLimiter, resendVerification);
 
 module.exports = router;

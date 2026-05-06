@@ -48,12 +48,13 @@ async function initiatePayment(req, res, next) {
     }
 
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const backendUrl = process.env.BACKEND_NOTIFY_URL || process.env.FRONTEND_URL || "http://localhost:5001";
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
       return_url: `${baseUrl}/checkout/success?order_id=${order._id}`,
       cancel_url: `${baseUrl}/checkout?payment=cancelled`,
-      notify_url: `${baseUrl.replace(/\/$/, "")}/api/payment/notify`,
+      notify_url: `${backendUrl.replace(/\/$/, "")}/api/payment/notify`,
       m_payment_id: order._id.toString(),
       amount: centsToRand(order.total),
       item_name: `ANTI Order ${order.orderNumber}`,

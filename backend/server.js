@@ -19,6 +19,7 @@ const paymentRoutes = require("./routes/payment.routes");
 const customOrderRoutes = require("./routes/customOrder.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const adminRoutes = require("./routes/admin.routes");
+const contactRoutes = require("./routes/contact.routes");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -61,6 +62,7 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/custom-orders", customOrderRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/contact", contactRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "ANTI backend is running" });
