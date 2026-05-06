@@ -21,8 +21,6 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [forgotMode, setForgotMode] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
 
   async function loadMeAndOrders() {
     const me = await api.me();
@@ -101,20 +99,6 @@ export default function AccountPage() {
     }
   }
 
-  async function handleForgotPassword(e) {
-    e.preventDefault();
-    try {
-      setError("");
-      setMessage("");
-      await api.forgotPassword({ email: forgotEmail });
-      setMessage("If that email exists, a reset link has been sent. Check your inbox.");
-      setForgotMode(false);
-      setForgotEmail("");
-    } catch (err) {
-      setError(err.message || "Request failed");
-    }
-  }
-
   function logout() {
     removeToken();
     setUser(null);
@@ -128,64 +112,28 @@ export default function AccountPage() {
     return (
       <div className="page-shell">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {forgotMode ? (
-            <form className="card-surface space-y-3" onSubmit={handleForgotPassword}>
-              <h1 className="text-xl font-semibold tracking-tight">Reset Password</h1>
-              <p className="text-sm text-neutral-500">Enter your email and we'll send a reset link.</p>
-              <input
-                className="field-input"
-                type="email"
-                placeholder="Email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                required
-              />
-              <div className="flex gap-3">
-                <button type="submit" className="btn-primary-solid rounded-full px-8">
-                  Send Link
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setForgotMode(false); setError(""); setMessage(""); }}
-                  className="text-sm text-neutral-500 underline"
-                >
-                  Back to Login
-                </button>
-              </div>
-            </form>
-          ) : (
-            <form className="card-surface space-y-3" onSubmit={handleLogin}>
-              <h1 className="text-xl font-semibold tracking-tight">Login</h1>
-              <input
-                className="field-input"
-                type="email"
-                placeholder="Email"
-                value={loginData.email}
-                onChange={(e) => setLoginData((p) => ({ ...p, email: e.target.value }))}
-                required
-              />
-              <input
-                className="field-input"
-                type="password"
-                placeholder="Password"
-                value={loginData.password}
-                onChange={(e) => setLoginData((p) => ({ ...p, password: e.target.value }))}
-                required
-              />
-              <div className="flex items-center gap-4">
-                <button type="submit" className="btn-primary-solid rounded-full px-8">
-                  Login
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setForgotMode(true); setError(""); setMessage(""); }}
-                  className="text-sm text-neutral-500 underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
-            </form>
-          )}
+          <form className="card-surface space-y-3" onSubmit={handleLogin}>
+            <h1 className="text-xl font-semibold tracking-tight">Login</h1>
+            <input
+              className="field-input"
+              type="email"
+              placeholder="Email"
+              value={loginData.email}
+              onChange={(e) => setLoginData((p) => ({ ...p, email: e.target.value }))}
+              required
+            />
+            <input
+              className="field-input"
+              type="password"
+              placeholder="Password"
+              value={loginData.password}
+              onChange={(e) => setLoginData((p) => ({ ...p, password: e.target.value }))}
+              required
+            />
+            <button type="submit" className="btn-primary-solid rounded-full px-8">
+              Login
+            </button>
+          </form>
 
           <form className="card-surface space-y-3" onSubmit={handleRegister}>
             <h2 className="text-xl font-semibold tracking-tight">Create Account</h2>
@@ -246,26 +194,6 @@ export default function AccountPage() {
           </button>
         </div>
       </div>
-
-      {!user.emailVerified && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <span>Please verify your email address. Check your inbox for a verification link.</span>
-          <button
-            type="button"
-            className="shrink-0 underline"
-            onClick={async () => {
-              try {
-                await api.resendVerification({ email: user.email });
-                setMessage("Verification email resent. Check your inbox.");
-              } catch (err) {
-                setError(err.message || "Failed to resend");
-              }
-            }}
-          >
-            Resend email
-          </button>
-        </div>
-      )}
 
       <form className="mt-6 card-surface grid grid-cols-1 gap-3 sm:grid-cols-2" onSubmit={handleProfileUpdate}>
         <input name="name" className="field-input" defaultValue={user.name || ""} placeholder="Name" />

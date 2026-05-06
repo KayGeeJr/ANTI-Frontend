@@ -14,7 +14,7 @@ function formatPrice(price) {
 const linkFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 rounded-sm";
 
-const BACKEND = (process.env.BACKEND_URL || "http://localhost:5001").replace(/\/+$/, "") + "/api";
+const BACKEND = process.env.BACKEND_URL || "http://localhost:5001/api";
 
 async function getFeaturedProducts() {
   try {

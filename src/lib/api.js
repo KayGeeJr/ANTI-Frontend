@@ -143,10 +143,6 @@ export const api = {
   me: () => apiFetch("/auth/me"),
   updateProfile: (data) => apiFetch("/auth/update-profile", { method: "PUT", body: data }),
   addAddress: (data) => apiFetch("/auth/address", { method: "POST", body: data }),
-  forgotPassword: (data) => apiFetch("/auth/forgot-password", { method: "POST", body: data }),
-  resetPassword: (data) => apiFetch("/auth/reset-password", { method: "POST", body: data }),
-  verifyEmail: (token) => apiFetch(`/auth/verify-email/${token}`),
-  resendVerification: (data) => apiFetch("/auth/resend-verification", { method: "POST", body: data }),
   listProducts: (query = "") => apiFetch(`/products${query}`),
   getProduct: (slug) => apiFetch(`/products/${slug}`),
   createProduct: (formData) => apiFetch("/products", { method: "POST", body: formData }),
@@ -175,7 +171,5 @@ export const api = {
   adminUpdateOrder: (id, data) => apiFetch(`/admin/orders/${id}`, { method: "PUT", body: data }),
   adminUsers: (query = "") => apiFetch(`/admin/users${query}`),
   adminInventory: () => apiFetch("/admin/inventory"),
-  adminCustomOrders: (query = "") => apiFetch(`/custom-orders${query}`),
-  adminUpdateCustomOrder: (id, data) => apiFetch(`/custom-orders/${id}`, { method: "PUT", body: data }),
   subscribeNewsletter: (data) => apiFetch("/newsletter/subscribe", { method: "POST", body: data }),
 };
