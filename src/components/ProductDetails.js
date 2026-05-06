@@ -36,7 +36,16 @@ export default function ProductDetails({ product }) {
 
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [cartError, setCartError] = useState("");
   const stripRef = useRef(null);
+
+  const sizeStockMap = useMemo(() => {
+    const map = {};
+    for (const v of product?.variants || []) {
+      if (v.size) map[v.size] = (map[v.size] || 0) + Number(v.stock || 0);
+    }
+    return map;
+  }, [product?.variants]);
 
   useEffect(() => {
     const initial = {};
@@ -78,6 +87,7 @@ export default function ProductDetails({ product }) {
   }
 
   async function handleAddToCart() {
+    setCartError("");
     setAddingToCart(true);
     try {
       const selectedVariantIndex = (product.variants || []).findIndex(
@@ -91,8 +101,8 @@ export default function ProductDetails({ product }) {
         quantity: 1,
       });
       router.push("/cart");
-    } catch {
-      router.push("/cart");
+    } catch (err) {
+      setCartError(err?.message || "Could not add to cart. Please try again.");
     } finally {
       setAddingToCart(false);
     }
@@ -232,6 +242,7 @@ export default function ProductDetails({ product }) {
                 option={opt}
                 value={selected[opt.name]}
                 onChange={(v) => setSelected((prev) => ({ ...prev, [opt.name]: v }))}
+                stockByValue={opt.name === "size" ? sizeStockMap : undefined}
               />
             ))}
           </div>
@@ -252,6 +263,9 @@ export default function ProductDetails({ product }) {
           >
             {addingToCart ? "Adding…" : hasAllSelections ? "Add to cart" : "Select options to continue"}
           </button>
+          {cartError && (
+            <p className="mt-2.5 text-center text-sm text-red-500">{cartError}</p>
+          )}
         </div>
 
         {/* Tags */}

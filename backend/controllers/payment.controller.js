@@ -1,5 +1,6 @@
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
+const User = require("../models/User");
 const { generatePayfastSignature } = require("../utils/payfastSignature");
 const { sendEmail, orderConfirmationEmail } = require("../utils/sendEmail");
 
@@ -48,15 +49,17 @@ async function initiatePayment(req, res, next) {
     }
 
     const baseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5001";
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
-      return_url: `${baseUrl}/checkout/success?order_id=${order._id}`,
+      return_url: `${baseUrl}/checkout/success?custom_str1=${order.orderNumber}`,
       cancel_url: `${baseUrl}/checkout?payment=cancelled`,
-      notify_url: `${baseUrl.replace(/\/$/, "")}/api/payment/notify`,
+      notify_url: `${backendUrl.replace(/\/$/, "")}/api/payment/notify`,
       m_payment_id: order._id.toString(),
       amount: centsToRand(order.total),
       item_name: `ANTI Order ${order.orderNumber}`,
+      custom_str1: order.orderNumber,
       email_address: order.guestEmail || req.user?.email || String(guestEmail || "").toLowerCase().trim(),
     };
 
@@ -116,22 +119,31 @@ async function paymentNotify(req, res, next) {
       return;
     }
 
+    // Idempotency: already processed
+    if (order.paymentStatus === "paid") {
+      res.status(200).send("OK");
+      return;
+    }
+
     order.paymentStatus = "paid";
     order.orderStatus = "confirmed";
     order.payfastToken = data.pf_payment_id;
     await order.save();
 
-    const recipient = order.guestEmail;
+    // Send confirmation to guest or logged-in user
+    let recipient = order.guestEmail;
+    if (!recipient && order.user) {
+      const user = await User.findById(order.user).select("email").lean();
+      recipient = user?.email;
+    }
     if (recipient) {
       sendEmail({ to: recipient, subject: `Order ${order.orderNumber} confirmed`, html: orderConfirmationEmail(order) }).catch(() => {});
     }
 
+    // Clear cart for logged-in user
     if (order.user) {
       const cart = await Cart.findOne({ user: order.user });
-      if (cart) {
-        cart.items = [];
-        await cart.save();
-      }
+      if (cart) { cart.items = []; await cart.save(); }
     }
 
     res.status(200).send("OK");

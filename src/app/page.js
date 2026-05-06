@@ -91,12 +91,12 @@ export default async function HomePage() {
             <div className="max-w-prose text-base leading-[1.45] text-neutral-600 sm:text-[16px] sm:leading-7 md:text-[16px] md:leading-8">
                 <p className="md:pt-2">
                   Our first campaign was a beautiful testament to the power of community. Because of your incredible
-                  support, we successfully secured a coverted spot at Africa Fashion Week London - a milestone that pushed
+                  support, we successfully secured a coveted spot at Africa Fashion Week London - a milestone that pushed
                   our dream onto the global stage.
                 </p>
                 <p className="mt-4 sm:mt-8">
                   Although an unexpected setback paused the journey, it did not stop it. The organizers have officially
-                  deffered our participation to next year, giving us a second chance to bring our vision to file.
+                  deferred our participation to next year, giving us a second chance to bring our vision to life.
                 </p>
                 <p className="mt-4 sm:mt-8">
                   This campaign marks the next chapter of our comeback story - a renewed opportunity to represent home,
@@ -104,7 +104,7 @@ export default async function HomePage() {
                 </p>
                 <p className="mt-4 sm:mt-8">
                   By purchasing from this collection, you&apos;re not just buying a t-shirt. You&apos;re helping make the
-                  preparation, travel, and accomodation for this long-awaited showcase possible. You&apos;re investing in a
+                  preparation, travel, and accommodation for this long-awaited showcase possible. You&apos;re investing in a
                   dream that you helped ignite.
                 </p>
                 <p className="mt-4 leading-snug sm:mt-8 sm:leading-normal">

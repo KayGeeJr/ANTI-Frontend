@@ -49,17 +49,27 @@ async function createOrder(req, res, next) {
         throw new Error("A cart product is unavailable");
       }
       const variant = product.variants[item.variantIndex];
-      if (!variant || variant.stock < item.quantity) {
+      if (!variant) {
         res.status(400);
-        throw new Error("Insufficient stock for one or more items");
-      }
-      if (item.price !== product.price) {
-        item.price = product.price;
+        throw new Error("Invalid variant in cart");
       }
 
-      variant.stock -= item.quantity;
-      await product.save();
+      // Atomically decrement — only succeeds if stock is still sufficient
+      const updated = await Product.updateOne(
+        {
+          _id: product._id,
+          [`variants.${item.variantIndex}.stock`]: { $gte: item.quantity },
+        },
+        { $inc: { [`variants.${item.variantIndex}.stock`]: -item.quantity } },
+      );
+      if (updated.modifiedCount === 0) {
+        res.status(400);
+        throw new Error(
+          `Insufficient stock for ${product.name}${variant.size ? ` (${variant.size})` : ""}`,
+        );
+      }
 
+      if (item.price !== product.price) item.price = product.price;
       subtotal += item.price * item.quantity;
       orderItems.push({
         product: product._id,

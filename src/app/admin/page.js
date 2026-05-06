@@ -351,12 +351,14 @@ export default function AdminPage() {
       fd.append("category", productForm.category);
       if (productForm.collection) fd.append("collection", productForm.collection);
       fd.append("tags", JSON.stringify(productForm.tags.split(",").map(t => t.trim()).filter(Boolean)));
-      fd.append("variants", JSON.stringify([{
-        size: productForm.size || undefined,
-        colour: productForm.colour || undefined,
-        stock: Number(productForm.stock || 0),
-        sku: productForm.sku || undefined,
-      }]));
+      fd.append("variants", JSON.stringify(
+        (productForm.variants || []).map(v => ({
+          size: v.size,
+          colour: v.colour || undefined,
+          stock: Number(v.stock || 0),
+          sku: v.sku || undefined,
+        }))
+      ));
       for (const file of (productForm.newImages || [])) {
         fd.append("images", file);
       }
@@ -924,28 +926,67 @@ export default function AdminPage() {
                 value={productForm.tags}
                 onChange={e => setProductForm(p => ({ ...p, tags: e.target.value }))} />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Size">
-                <input className={INPUT_CLS} placeholder="S / M / L / XL"
-                  value={productForm.size}
-                  onChange={e => setProductForm(p => ({ ...p, size: e.target.value }))} />
-              </Field>
-              <Field label="Colour">
-                <input className={INPUT_CLS} placeholder="Black"
-                  value={productForm.colour}
-                  onChange={e => setProductForm(p => ({ ...p, colour: e.target.value }))} />
-              </Field>
-              <Field label="Stock">
-                <input className={INPUT_CLS} type="number" min="0"
-                  value={productForm.stock}
-                  onChange={e => setProductForm(p => ({ ...p, stock: e.target.value }))} />
-              </Field>
-              <Field label="SKU">
-                <input className={INPUT_CLS} placeholder="ANTI-001"
-                  value={productForm.sku}
-                  onChange={e => setProductForm(p => ({ ...p, sku: e.target.value }))} />
-              </Field>
-            </div>
+            <Field label="Size Variants & Stock">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-100">
+                      <th className="pb-2 text-left text-[10px] font-semibold uppercase tracking-widest text-neutral-400 w-10">Size</th>
+                      <th className="pb-2 pl-2 text-left text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Stock</th>
+                      <th className="pb-2 pl-2 text-left text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Colour</th>
+                      <th className="pb-2 pl-2 text-left text-[10px] font-semibold uppercase tracking-widest text-neutral-400">SKU</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-50">
+                    {(productForm.variants || []).map((v, idx) => (
+                      <tr key={v.size}>
+                        <td className="py-1.5 pr-2">
+                          <span className="inline-flex h-7 w-9 items-center justify-center rounded-lg bg-neutral-100 text-xs font-bold text-neutral-700">
+                            {v.size}
+                          </span>
+                        </td>
+                        <td className="py-1.5 pl-2 pr-2">
+                          <input
+                            type="number" min="0"
+                            className="w-20 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm text-neutral-900 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
+                            value={v.stock}
+                            onChange={e => setProductForm(p => {
+                              const variants = [...p.variants];
+                              variants[idx] = { ...variants[idx], stock: Number(e.target.value) };
+                              return { ...p, variants };
+                            })}
+                          />
+                        </td>
+                        <td className="py-1.5 pl-2 pr-2">
+                          <input
+                            className="w-24 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm text-neutral-900 placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
+                            placeholder="Black"
+                            value={v.colour}
+                            onChange={e => setProductForm(p => {
+                              const variants = [...p.variants];
+                              variants[idx] = { ...variants[idx], colour: e.target.value };
+                              return { ...p, variants };
+                            })}
+                          />
+                        </td>
+                        <td className="py-1.5 pl-2">
+                          <input
+                            className="w-28 rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm text-neutral-900 placeholder-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none transition"
+                            placeholder={`ANTI-${v.size}`}
+                            value={v.sku}
+                            onChange={e => setProductForm(p => {
+                              const variants = [...p.variants];
+                              variants[idx] = { ...variants[idx], sku: e.target.value };
+                              return { ...p, variants };
+                            })}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Field>
             <Field label="Images">
               {/* Existing images */}
               {productForm.existingImages?.length > 0 && (

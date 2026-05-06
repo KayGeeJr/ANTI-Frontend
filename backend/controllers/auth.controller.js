@@ -1,7 +1,8 @@
+const crypto = require("crypto");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
-const { sendEmail, welcomeEmail } = require("../utils/sendEmail");
+const { sendEmail, welcomeEmail, resetPasswordEmail } = require("../utils/sendEmail");
 
 function sanitizeUser(user) {
   return {
@@ -194,6 +195,75 @@ async function deleteAddress(req, res, next) {
   }
 }
 
+async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400);
+      throw new Error("email is required");
+    }
+
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
+    // Always respond the same way — don't reveal whether the email exists
+    if (!user) {
+      res.json({ success: true, message: "If that email is registered, a reset link has been sent." });
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashed = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+    user.resetPasswordToken = hashed;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/account/reset-password?token=${rawToken}`;
+    sendEmail({
+      to: user.email,
+      subject: "Reset your ANTI password",
+      html: resetPasswordEmail(user.name, resetUrl),
+    }).catch(() => {});
+
+    res.json({ success: true, message: "If that email is registered, a reset link has been sent." });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      res.status(400);
+      throw new Error("token and password are required");
+    }
+    if (!PASSWORD_REGEX.test(password)) {
+      res.status(400);
+      throw new Error("Password must be at least 8 characters and include an uppercase letter, lowercase letter, and number");
+    }
+
+    const hashed = crypto.createHash("sha256").update(String(token)).digest("hex");
+    const user = await User.findOne({
+      resetPasswordToken: hashed,
+      resetPasswordExpires: { $gt: new Date() },
+    }).select("+resetPasswordToken +resetPasswordExpires");
+
+    if (!user) {
+      res.status(400);
+      throw new Error("Reset link is invalid or has expired");
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successfully. You can now log in." });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -203,4 +273,6 @@ module.exports = {
   addAddress,
   updateAddress,
   deleteAddress,
+  forgotPassword,
+  resetPassword,
 };

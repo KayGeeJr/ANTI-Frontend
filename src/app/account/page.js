@@ -130,9 +130,17 @@ export default function AccountPage() {
               onChange={(e) => setLoginData((p) => ({ ...p, password: e.target.value }))}
               required
             />
-            <button type="submit" className="btn-primary-solid rounded-full px-8">
-              Login
-            </button>
+            <div className="flex items-center justify-between gap-3">
+              <button type="submit" className="btn-primary-solid rounded-full px-8">
+                Login
+              </button>
+              <Link
+                href="/account/forgot-password"
+                className="text-sm text-neutral-500 hover:text-neutral-700 transition underline-offset-2 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </form>
 
           <form className="card-surface space-y-3" onSubmit={handleRegister}>

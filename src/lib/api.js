@@ -143,6 +143,8 @@ export const api = {
   me: () => apiFetch("/auth/me"),
   updateProfile: (data) => apiFetch("/auth/update-profile", { method: "PUT", body: data }),
   addAddress: (data) => apiFetch("/auth/address", { method: "POST", body: data }),
+  forgotPassword: (data) => apiFetch("/auth/forgot-password", { method: "POST", body: data }),
+  resetPassword: (data) => apiFetch("/auth/reset-password", { method: "POST", body: data }),
   listProducts: (query = "") => apiFetch(`/products${query}`),
   getProduct: (slug) => apiFetch(`/products/${slug}`),
   createProduct: (formData) => apiFetch("/products", { method: "POST", body: formData }),

@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     addresses: [addressSchema],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
   },
   { timestamps: true },
 );

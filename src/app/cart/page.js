@@ -86,6 +86,13 @@ export default function CartPage() {
                   <img src={imageSrc} alt={item.product?.name || "Product"} className="h-20 w-20 rounded-lg object-cover" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-neutral-900">{item.product?.name}</div>
+                    {(() => {
+                      const v = item.product?.variants?.[item.variantIndex];
+                      const parts = [v?.size, v?.colour].filter(Boolean);
+                      return parts.length > 0 ? (
+                        <div className="mt-0.5 text-xs text-neutral-500">{parts.join(" · ")}</div>
+                      ) : null;
+                    })()}
                     <div className="mt-1 text-xs text-neutral-600">Qty: {item.quantity}</div>
                     <div className="mt-1 text-sm text-neutral-800">{formatRand(item.price)}</div>
                   </div>
