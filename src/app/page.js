@@ -119,6 +119,44 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* The Obsidian Set */}
+      <section
+        className="border-y border-neutral-200/60 bg-neutral-100/40 home-section-y"
+        aria-labelledby="obsidian-set-heading"
+      >
+        <div className="home-container">
+          <RevealOnScroll>
+            <h2 id="obsidian-set-heading" className="home-section-title text-center">
+              The Obsidian Set
+            </h2>
+            <p className="mx-auto mt-2 max-w-2xl text-center text-sm leading-snug text-neutral-600 sm:mt-3 sm:leading-normal sm:text-[15px]">
+              Dark, sculpted silhouettes with a sharp editorial edge.
+            </p>
+          </RevealOnScroll>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-5 md:gap-6">
+              {[
+                { src: "/images/products/obsidian1.jpeg", alt: "The Obsidian Set — look one" },
+                { src: "/images/products/obsidian2.jpeg", alt: "The Obsidian Set — look two" },
+                { src: "/images/products/obsidian3.jpeg", alt: "The Obsidian Set — look three" },
+              ].map((item, idx) => (
+                <RevealOnScroll key={item.src} variant="image" delayMs={idx * 100} className="min-w-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="aspect-[4/5] w-full rounded-2xl border border-neutral-200/70 object-cover shadow-sm"
+                  />
+                </RevealOnScroll>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-center sm:mt-10">
+              <Link href="/category/the-obsidian-set" className="btn-primary-solid">
+                SHOP NOW
+              </Link>
+            </div>
+        </div>
+      </section>
+
       {/* The Working Girl Drop */}
       <section
         className="border-y border-neutral-200/60 bg-white home-section-y"
