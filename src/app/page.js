@@ -136,8 +136,8 @@ export default async function HomePage() {
             <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-5 md:gap-6">
               {[
                 { src: "/images/products/obsidian1.jpeg", alt: "The Obsidian Set — look one" },
-                { src: "/images/products/obsidian2.jpeg", alt: "The Obsidian Set — look two" },
-                { src: "/images/products/obsidian3.jpeg", alt: "The Obsidian Set — look three" },
+                { src: "/images/products/obsidian3.jpeg", alt: "The Obsidian Set — look two" },
+                { src: "/images/products/obsidian2.jpeg", alt: "The Obsidian Set — look three" },
               ].map((item, idx) => (
                 <RevealOnScroll key={item.src} variant="image" delayMs={idx * 100} className="min-w-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -150,7 +150,7 @@ export default async function HomePage() {
               ))}
             </div>
             <div className="mt-6 flex justify-center sm:mt-10">
-              <Link href="/category/the-obsidian-set" className="btn-primary-solid">
+              <Link href="/product/the-obsidian-set" className="btn-primary-solid">
                 SHOP NOW
               </Link>
             </div>
