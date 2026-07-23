@@ -150,7 +150,7 @@ export default async function HomePage() {
               ))}
             </div>
             <div className="mt-6 flex justify-center sm:mt-10">
-              <Link href="/product/the-obsidian-set" className="btn-primary-solid">
+              <Link href="/category/the-obsidian-set" className="btn-primary-solid">
                 SHOP NOW
               </Link>
             </div>
